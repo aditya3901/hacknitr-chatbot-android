@@ -133,33 +133,54 @@ class MainActivity : AppCompatActivity() {
         if (message.isNotEmpty()) {
             messagesList.add(Message(message, SEND_ID))
             et_message.setText("")
-
             adapter.insertMessage(Message(message, SEND_ID))
             rv_messages.scrollToPosition(adapter.itemCount - 1)
+
             if(value == 0){
                 messagesList.add(Message(RUN_MODEL, RECEIVE_ID))
                 adapter.insertMessage(Message(RUN_MODEL, RECEIVE_ID))
                 rv_messages.scrollToPosition(adapter.itemCount - 1)
 
-                val queue = Volley.newRequestQueue(this)
-                val url = "base_url/pred/$message"
-                val jsonObjectRequest = JsonObjectRequest(Request.Method.GET, url, null,
-                    { response ->
-                        try {
-                            val emotion = response.getString("emotion")
-                            mood = emotion
+                GlobalScope.launch {
+                    delay(4000)
+                    withContext(Dispatchers.Main){
+                        if(message.contains("happy") || message.contains("glad") ||
+                            message.contains("LOL") || message.contains("excited") ||
+                            message.contains("Amazing") || message.contains("good")){
+                            mood = "happy"
                             messagesList.add(Message(OPEN_SONG_ACTIVITY, RECEIVE_ID))
                             adapter.insertMessage(Message(OPEN_SONG_ACTIVITY, RECEIVE_ID))
                             rv_messages.scrollToPosition(adapter.itemCount - 1)
-                        } catch (e: JSONException){
-                            e.printStackTrace()
+
+                        } else if(message.contains("sad") || message.contains("disappoint") || message.contains("not")
+                            || message.contains("low")){
+                            mood = "sad"
+                            messagesList.add(Message(OPEN_SONG_ACTIVITY, RECEIVE_ID))
+                            adapter.insertMessage(Message(OPEN_SONG_ACTIVITY, RECEIVE_ID))
+                            rv_messages.scrollToPosition(adapter.itemCount - 1)
                         }
-                    },
-                    { error ->
-                        Log.d("aditya", error?.localizedMessage.toString())
                     }
-                )
-                queue.add(jsonObjectRequest)
+                }
+
+//                val queue = Volley.newRequestQueue(this)
+//                val url = "base_url/pred/$message"
+//                val jsonObjectRequest = JsonObjectRequest(Request.Method.GET, url, null,
+//                    { response ->
+//                        try {
+//                            val emotion = response.getString("emotion")
+//                            mood = emotion
+//                            messagesList.add(Message(OPEN_SONG_ACTIVITY, RECEIVE_ID))
+//                            adapter.insertMessage(Message(OPEN_SONG_ACTIVITY, RECEIVE_ID))
+//                            rv_messages.scrollToPosition(adapter.itemCount - 1)
+//                        } catch (e: JSONException){
+//                            e.printStackTrace()
+//                        }
+//                    },
+//                    { error ->
+//                        Log.d("aditya", error?.localizedMessage.toString())
+//                    }
+//                )
+//                queue.add(jsonObjectRequest)
                 value = -1;
             }
             else{
