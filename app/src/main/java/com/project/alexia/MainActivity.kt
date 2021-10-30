@@ -4,21 +4,29 @@ import android.content.Intent
 import android.net.Uri
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
+import android.view.View
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.android.volley.Request
+import com.android.volley.toolbox.JsonObjectRequest
+import com.android.volley.toolbox.Volley
 import com.project.alexia.data.Message
+import com.project.alexia.data.Song
 import com.project.alexia.ui.MessagingAdapter
 import com.project.alexia.utils.BotResponse
 import com.project.alexia.utils.Constants.OPEN_GOOGLE
 import com.project.alexia.utils.Constants.OPEN_SEARCH
-import com.project.alexia.utils.Constants.OPEN_SEARCH_HAPPY
-import com.project.alexia.utils.Constants.OPEN_SEARCH_SAD
+import com.project.alexia.utils.Constants.OPEN_SONG_ACTIVITY
 import com.project.alexia.utils.Constants.RECEIVE_ID
+import com.project.alexia.utils.Constants.RUN_MODEL
 import com.project.alexia.utils.Constants.SEND_ID
 import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.android.synthetic.main.activity_songs.*
 import kotlinx.coroutines.*
+import org.json.JSONException
 
 class MainActivity : AppCompatActivity() {
 
@@ -27,6 +35,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var adapter: MessagingAdapter
     lateinit var loadingDialog: LoadingDialog
     var mood: String = "random"
+    var value = -1
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -110,14 +119,40 @@ class MainActivity : AppCompatActivity() {
         val message = et_message.text.toString()
 
         if (message.isNotEmpty()) {
-            //Adds it to our local list
             messagesList.add(Message(message, SEND_ID))
             et_message.setText("")
 
             adapter.insertMessage(Message(message, SEND_ID))
             rv_messages.scrollToPosition(adapter.itemCount - 1)
+            if(value == 0){
+                messagesList.add(Message(RUN_MODEL, RECEIVE_ID))
+                adapter.insertMessage(Message(RUN_MODEL, RECEIVE_ID))
+                rv_messages.scrollToPosition(adapter.itemCount - 1)
 
-            botResponse(message)
+                val queue = Volley.newRequestQueue(this)
+                val url = "base_url/pred/\"$message\""
+                val jsonObjectRequest = JsonObjectRequest(Request.Method.GET, url, null,
+                    { response ->
+                        try {
+                            val emotion = response.getString("emotion")
+                            mood = emotion
+                            messagesList.add(Message(OPEN_SONG_ACTIVITY, RECEIVE_ID))
+                            adapter.insertMessage(Message(OPEN_SONG_ACTIVITY, RECEIVE_ID))
+                            rv_messages.scrollToPosition(adapter.itemCount - 1)
+                        } catch (e: JSONException){
+                            e.printStackTrace()
+                        }
+                    },
+                    { error ->
+                        Log.d("aditya", error?.localizedMessage.toString())
+                    }
+                )
+                queue.add(jsonObjectRequest)
+                value = -1;
+            }
+            else{
+                botResponse(message)
+            }
         }
     }
 
@@ -139,6 +174,9 @@ class MainActivity : AppCompatActivity() {
 
                 //Scrolls us to the position of the latest message
                 rv_messages.scrollToPosition(adapter.itemCount - 1)
+                if(response == "How are you feeling today ?"){
+                    value = 0;
+                }
 
                 //Starts Google
                 when (response) {
@@ -152,12 +190,6 @@ class MainActivity : AppCompatActivity() {
                         val searchTerm: String? = message.substringAfterLast("search")
                         site.data = Uri.parse("https://www.google.com/search?&q=$searchTerm")
                         startActivity(site)
-                    }
-                    OPEN_SEARCH_HAPPY -> {
-                        mood = "happy"
-                    }
-                    OPEN_SEARCH_SAD -> {
-                        mood = "sadness"
                     }
                 }
             }

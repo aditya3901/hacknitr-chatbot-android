@@ -2,8 +2,6 @@ package com.project.alexia.utils
 
 import com.project.alexia.utils.Constants.OPEN_GOOGLE
 import com.project.alexia.utils.Constants.OPEN_SEARCH
-import com.project.alexia.utils.Constants.OPEN_SEARCH_HAPPY
-import com.project.alexia.utils.Constants.OPEN_SEARCH_SAD
 import java.util.*
 
 object BotResponse {
@@ -46,26 +44,21 @@ object BotResponse {
 
             //Song request
             message.contains("sure") || message.contains("ok") || message.contains("yes") || message.contains("fine") -> {
-                when (random) {
-                    0 -> "How are you feeling today ?"
-                    1 -> "How was your day ?"
-                    3 -> "How are you doing ?"
-                    else -> "error"
-                }
+                "How are you feeling today ?"
             }
 
-            //Song request
-            message.contains("happy") || message.contains("glad") ||
-                    message.contains("LOL") || message.contains("excited") ||
-                    message.contains("Amazing") || message.contains("good")-> {
-                OPEN_SEARCH_HAPPY
-            }
+//            //Song request
+//            message.contains("happy") || message.contains("glad") ||
+//                    message.contains("LOL") || message.contains("excited") ||
+//                    message.contains("Amazing") || message.contains("good")-> {
+//                OPEN_SEARCH_HAPPY
+//            }
 
-            //Song request
-            message.contains("sad") || message.contains("disappoint") || message.contains("not")
-                    || message.contains("low") -> {
-                OPEN_SEARCH_SAD
-            }
+//            //Song request
+//            message.contains("sad") || message.contains("disappoint") || message.contains("not")
+//                    || message.contains("low") -> {
+//                OPEN_SEARCH_SAD
+//            }
 
             //When the programme doesn't understand...
             else -> {

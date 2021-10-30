@@ -7,6 +7,7 @@ object Constants {
 
     const val OPEN_GOOGLE = "Opening Google..."
     const val OPEN_SEARCH = "Searching..."
-    const val OPEN_SEARCH_HAPPY = "I've listed some happy songs for you. Please head on to Recommended Songs section from menu."
-    const val OPEN_SEARCH_SAD = "I've listed some songs to lift your mood. Please head on to Recommended Songs section from menu."
+    const val OPEN_SONG_ACTIVITY = "I've listed some songs to lift your mood. Please head on to Recommended Songs section from menu."
+
+    const val RUN_MODEL = "Running sentiment analysis, please wait.."
 }
